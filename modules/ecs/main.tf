@@ -6,6 +6,10 @@ resource "aws_ecs_cluster" "main" {
     name  = "containerInsights"
     value = "enabled"
   }
+
+  tags = {
+    name = "csgtest" 
+  }
 }
 
 
@@ -61,5 +65,11 @@ resource "aws_ecs_service" "main" {
     subnets          = var.private_subnet_ids
     assign_public_ip = false
   }
-  
+ load_balancer {
+    target_group_arn = var.target_group_arn
+    container_name   = "app-container" # Debe coincidir exactamente con el nombre en container_definitions
+    container_port   = 80
+  } 
 }
+
+ 

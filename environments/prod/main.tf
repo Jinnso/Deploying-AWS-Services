@@ -1,9 +1,9 @@
 terraform {
   backend "s3" {
-    bucket         = "nicojarpa-private-terraform-bucket" # [cite: 54]
-    key            = "env/test/terraform.tfstate"         # OJO: Ruta específica para TEST
+    bucket         = "nicojarpa-private-terraform-bucket" 
+    key            = "env/prod/terraform.tfstate" # ¡DEBE DECIR PROD AQUÍ!
     region         = "us-east-1"
-    dynamodb_table = "terraform-state-locks"              # [cite: 54]
+    dynamodb_table = "terraform-state-locks"             
     encrypt        = true
   }
 }
