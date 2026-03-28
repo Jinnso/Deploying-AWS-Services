@@ -52,7 +52,8 @@ resource "aws_security_group" "ecs" {
 
 # Security Group para RDS
 resource "aws_security_group" "rds" {
-  name        = "rds-sg"
+  
+  name_prefix = "rds-sg-" 
   description = "Permitir trafico desde ECS hacia RDS"
   vpc_id      = var.vpc_id
 
@@ -61,7 +62,7 @@ resource "aws_security_group" "rds" {
     from_port       = 5432
     to_port         = 5432
     protocol        = "tcp"
-    security_groups = [aws_security_group.ecs.id] 
+    security_groups = [aws_security_group.ecs.id]
   }
 
   egress {
@@ -69,6 +70,10 @@ resource "aws_security_group" "rds" {
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 
   tags = {
