@@ -16,12 +16,30 @@ resource "aws_ecs_task_definition" "app" {
   requires_compatibilities = ["FARGATE"]
   cpu                      = "256"
   memory                   = "512"
-  # Faltan los roles de IAM (execution_role y task_role) que son obligatorios
+  execution_role_arn       = var.execution_role_arn
+  task_role_arn            = var.task_role_arn
 
   container_definitions = jsonencode([{
     name      = "app-container"
-    image     = "nginx:latest" # Imagen de ejemplo
+    image     = var.ecr_image_url # Ahora usa la imagen real de ECR
     essential = true
+    
+    # Variables de entorno estándar (texto plano)
+    environment = [
+      { name = "APP_ENV", value = var.app_environment },
+      { name = "DB_HOST", value = var.db_host },
+      { name = "DB_NAME", value = "postgres" },
+      { name = "DB_USER", value = "admin" }
+    ]
+    
+    # Secretos (ECS los va a buscar a Secrets Manager de forma segura)
+    secrets = [
+      {
+        name      = "DB_PASSWORD"
+        valueFrom = var.db_password_secret_arn
+      }
+    ]
+
     portMappings = [{
       containerPort = 80
       hostPort      = 80

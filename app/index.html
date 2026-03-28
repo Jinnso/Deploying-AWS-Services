@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PagerDuty CSG Innovation</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; text-align: center; }
+        .env-badge { display: inline-block; padding: 5px 15px; border-radius: 20px; font-weight: bold; margin-bottom: 20px;}
+        .env-test { background-color: #ffd700; color: #000; }
+        .env-prod { background-color: #ff4500; color: #fff; }
+        input, button { padding: 10px; margin: 5px; }
+        #messages { text-align: left; margin-top: 20px; border-top: 1px solid #ccc; padding-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>PagerDuty Innovation Team</h1>
+    <div id="envBadge" class="env-badge">Loading Environment...</div>
+
+    <div>
+        <input type="text" id="msgInput" placeholder="Escribe un mensaje para la BD..." maxlength="250" style="width: 70%;">
+        <button onclick="sendMessage()">Enviar</button>
+    </div>
+
+    <div id="messages">
+        <h3>Últimos Mensajes (Desde RDS):</h3>
+        <ul id="messageList"></ul>
+    </div>
+
+    <script>
+        async function loadInfo() {
+            const res = await fetch('/api/info');
+            const data = await res.json();
+            
+            const badge = document.getElementById('envBadge');
+            badge.textContent = `Environment: ${data.environment.toUpperCase()}`;
+            badge.className = `env-badge env-${data.environment.toLowerCase()}`;
+
+            const list = document.getElementById('messageList');
+            list.innerHTML = data.messages.map(m => `<li>${m.content} <small style="color:gray;">(${new Date(m.created_at).toLocaleString()})</small></li>`).join('');
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('msgInput');
+            if(!input.value) return;
+            
+            await fetch('/api/messages', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ content: input.value })
+            });
+            input.value = '';
+            loadInfo();
+        }
+
+        loadInfo();
+    </script>
+</body>
+</html>

@@ -62,6 +62,9 @@ module "ecs" {
   execution_role_arn    = module.iam.execution_role_arn
   task_role_arn         = module.iam.task_role_arn
   app_environment       = "test" # Esta es la variable que inyectaremos en el contenedor
+  db_host                = module.rds.db_endpoint
+  db_password_secret_arn = module.secrets.secret_arn
+  ecr_image_url          = "${module.ecr.repository_url}:latest"
 }
 
 # 6. Base de Datos y Secretos (RDS)
