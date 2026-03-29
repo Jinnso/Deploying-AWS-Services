@@ -1,20 +1,39 @@
-# Local .terraform directories
+# =========================
+# TERRAFORM
+# =========================
+# Ignorar directorios locales ocultos de Terraform
 **/.terraform/*
+.terraform*
 
-# .tfstate files
+# Ignorar archivos de estado (¡NUNCA deben subirse, tienen secretos y datos sensibles!)
 *.tfstate
 *.tfstate.*
 
-# Crash log files
+# Ignorar logs de error de Terraform
 crash.log
 crash.*.log
 
-# Exclude all .tfvars files, which are likely to contain sensitive data
+# Ignorar archivos de variables que podrían contener credenciales reales
 *.tfvars
 *.tfvars.json
+!example.tfvars # Se permite un archivo de ejemplo sin datos reales
 
-# Ignore override files
+# Ignorar archivos de override
 override.tf
 override.tf.json
 *_override.tf
 *_override.tf.json
+
+# =========================
+# NODE.JS (Aplicación)
+# =========================
+app/node_modules/
+app/npm-debug.log
+app/yarn-error.log
+app/.env
+
+# =========================
+# SISTEMA OPERATIVO
+# =========================
+.DS_Store
+Thumbs.db
