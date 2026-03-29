@@ -1,6 +1,9 @@
 resource "aws_secretsmanager_secret" "db_password" {
-  name        = "${var.environment}-db-password"
-  description = "Password for the RDS instance"
+  # Cambiamos 'name' por 'name_prefix' para evitar colisiones
+  name_prefix             = "${var.environment}-db-password-"
+  
+  # Obligamos a AWS a borrar el secreto inmediatamente si hacemos un destroy
+  recovery_window_in_days = 0 
 
   tags = {
     name        = "csgtest"
@@ -12,7 +15,7 @@ resource "aws_secretsmanager_secret" "db_password" {
 resource "aws_secretsmanager_secret_version" "db_password_version" {
   secret_id     = aws_secretsmanager_secret.db_password.id
   secret_string = jsonencode({
-    username = "admin"
+    username = "dbadmin"
     password = var.db_password # Esta variable vendrá de tus variables de entorno o tfvars
   })
 }

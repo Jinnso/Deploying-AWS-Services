@@ -6,6 +6,10 @@ resource "aws_ecs_cluster" "main" {
     name  = "containerInsights"
     value = "enabled"
   }
+
+  tags = {
+    name = "csgtest" 
+  }
 }
 
 
@@ -16,16 +20,43 @@ resource "aws_ecs_task_definition" "app" {
   requires_compatibilities = ["FARGATE"]
   cpu                      = "256"
   memory                   = "512"
-  # Faltan los roles de IAM (execution_role y task_role) que son obligatorios
+  execution_role_arn       = var.execution_role_arn
+  task_role_arn            = var.task_role_arn
 
   container_definitions = jsonencode([{
     name      = "app-container"
-    image     = "nginx:latest" # Imagen de ejemplo
+    image     = var.ecr_image_url # Ahora usa la imagen real de ECR
     essential = true
+    
+    # Variables de entorno estándar (texto plano)
+    environment = [
+      { name = "APP_ENV", value = var.app_environment },
+      { name = "DB_HOST", value = var.db_host },
+      { name = "DB_NAME", value = "postgres" },
+      { name = "DB_USER", value = "dbadmin" }
+    ]
+    
+    # Secretos (ECS los va a buscar a Secrets Manager de forma segura)
+    secrets = [
+      {
+        name      = "DB_PASSWORD"
+        valueFrom = var.db_password_secret_arn
+      }
+    ]
+
     portMappings = [{
-      containerPort = 80
-      hostPort      = 80
+      containerPort = 3000
+      hostPort      = 3000
+      protocol      = "tcp"
     }]
+    logConfiguration = {
+      logDriver = "awslogs"
+      options = {
+        "awslogs-group"         = aws_cloudwatch_log_group.ecs_logs.name
+        "awslogs-region"        = "us-east-1" # O la región que estés usando
+        "awslogs-stream-prefix" = "app"
+      }
+    }
   }])
 }
 
@@ -38,8 +69,23 @@ resource "aws_ecs_service" "main" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    security_groups  = [aws_security_group.ecs_tasks.id]
+    # Cambiamos la referencia antigua por la variable correcta
+    security_groups  = [var.ecs_security_group_id] 
     subnets          = var.private_subnet_ids
-    assign_public_ip = false # Fargate en subredes privadas no necesita IP pública (sale por el NAT Gateway)
+    assign_public_ip = false
   }
+ load_balancer {
+    target_group_arn = var.target_group_arn
+    container_name   = "app-container" # Debe coincidir exactamente con el nombre en container_definitions
+    container_port   = 3000
+  } 
 }
+
+resource "aws_cloudwatch_log_group" "ecs_logs" {
+  name              = "/ecs/${var.cluster_name}"
+  retention_in_days = 7
+
+  tags = {
+    name = "csgtest"
+  }
+} 

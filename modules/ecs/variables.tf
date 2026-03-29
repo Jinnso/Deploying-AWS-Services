@@ -37,3 +37,18 @@ variable "app_environment" {
   description = "Entorno de la aplicación (test o prod) para inyectar en el contenedor"
   type        = string
 }
+
+variable "db_host" {
+  description = "El endpoint/dirección de la base de datos RDS"
+  type        = string
+}
+
+variable "db_password_secret_arn" {
+  description = "El ARN del secreto en Secrets Manager que contiene la contraseña"
+  type        = string
+}
+
+variable "ecr_image_url" {
+  description = "URL completa de la imagen en ECR"
+  type        = string
+}

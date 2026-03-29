@@ -1,9 +1,9 @@
 terraform {
   backend "s3" {
-    bucket         = "nicojarpa-private-terraform-bucket" # [cite: 54]
-    key            = "env/test/terraform.tfstate"         # OJO: Ruta específica para TEST
+    bucket         = "nicojarpa-private-terraform-bucket" 
+    key            = "env/prod/terraform.tfstate" # ¡DEBE DECIR PROD AQUÍ!
     region         = "us-east-1"
-    dynamodb_table = "terraform-state-locks"              # [cite: 54]
+    dynamodb_table = "terraform-state-locks"             
     encrypt        = true
   }
 }
@@ -62,6 +62,9 @@ module "ecs" {
   execution_role_arn    = module.iam.execution_role_arn
   task_role_arn         = module.iam.task_role_arn
   app_environment       = "prod" # Esta es la variable que inyectaremos en el contenedor
+  db_host                = module.rds.db_endpoint
+  db_password_secret_arn = module.secrets.secret_arn
+  ecr_image_url          = "${module.ecr.repository_url}:latest"
 }
 
 # 6. Base de Datos y Secretos (RDS)
