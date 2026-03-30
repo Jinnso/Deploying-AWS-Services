@@ -52,7 +52,7 @@ The workflow (`deploy.yml`) handles both the application build and infrastructur
     ├── rds/                # Relational Database Service (PostgreSQL)
     ├── secrets/            # AWS Secrets Manager
     └── security_groups/    # Security Groups (ALB, ECS, RDS)
-
+```
 ## 💻 Application Overview
 
 The repository includes a lightweight, containerized Node.js web application specifically designed to validate the end-to-end infrastructure deployment.
